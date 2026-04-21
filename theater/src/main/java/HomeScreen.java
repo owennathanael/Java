@@ -185,6 +185,7 @@ public class HomeScreen extends JFrame {
                     "Logout", 
                     JOptionPane.YES_NO_OPTION);
                 if (choice == JOptionPane.YES_OPTION) {
+                    dispose();
                     new MainMenu();
                 }
             }

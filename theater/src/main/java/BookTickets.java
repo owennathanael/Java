@@ -615,7 +615,7 @@ public class BookTickets extends JFrame {
      * @param points The number of loyalty points to add (e.g., 1 point per dollar spent)
      */
     private void addLoyaltyPoints(int userID, int points) {
-        String query = "UPDATE users SET loyaltyPoints = loyaltyPoints + ? WHERE userID = ?";
+        String query = "UPDATE users SET loyaltyPoints = COALESCE(loyaltyPoints, 0) + ? WHERE userID = ?";
         try (Connection conn = DriverManager.getConnection(DATABASE_URL, USER, PASS);
             PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setInt(1, points);

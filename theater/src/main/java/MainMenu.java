@@ -168,6 +168,7 @@ public class MainMenu extends JFrame {
                 createAcc.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                 createAcc.setLocation(450, 200);
                 createAcc.setVisible(true);
+                dispose();
             }
             else if (event.getSource() == buttons[0]) {
                 String user = username.getText();

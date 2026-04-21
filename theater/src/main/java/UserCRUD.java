@@ -39,7 +39,7 @@ public class UserCRUD
             connection = DriverManager.getConnection(DATABASE_URL, USER, PASS);
 
             pstat = connection.prepareStatement(
-                "INSERT INTO users (userName, email, password) VALUES (?, ?, ?)"
+                "INSERT INTO users (userName, email, password, loyaltyPoints) VALUES (?, ?, ?, 0)"
             );
             pstat.setString(1, userName);
             pstat.setString(2, email);

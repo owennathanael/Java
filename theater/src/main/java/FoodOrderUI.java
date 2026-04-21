@@ -294,7 +294,7 @@ public class FoodOrderUI extends JFrame {
             }
             
             if (pointsUsed > 0) {
-                String updatePoints = "UPDATE users SET loyaltyPoints = loyaltyPoints - ? WHERE userID = ?";
+                String updatePoints = "UPDATE users SET loyaltyPoints = COALESCE(loyaltyPoints, 0) - ? WHERE userID = ?";
                 try (PreparedStatement ps = conn.prepareStatement(updatePoints)) {
                     ps.setInt(1, pointsUsed);
                     ps.setInt(2, userID);
@@ -308,6 +308,7 @@ public class FoodOrderUI extends JFrame {
                 "Order placed!\nItems: " + details + "\nTotal: $" + total + 
                 (pointsUsed > 0 ? "\nPoints used: " + pointsUsed : ""));
             dispose();
+            new HomeScreen(username, userID);
             
         } catch (SQLException e) {
             e.printStackTrace();

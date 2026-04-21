@@ -122,13 +122,16 @@ public class BookTickets extends JFrame {
         JComboBox<String> genreCombo = new JComboBox<>(genres);
         JButton bFetchByGenre = new JButton("Fetch by Genre");
         
+        JButton bFilter = new JButton("Filter by Genre");
+        
         JPanel topPanel = new JPanel();
         topPanel.add(new JLabel("Step 1: Select Movie"));
         topPanel.add(genreCombo);
+        topPanel.add(bFilter);
         topPanel.add(bFetchByGenre);
         panel.add(topPanel, BorderLayout.NORTH);
         movieListModel = new DefaultListModel<>();
-        loadMovies();
+        loadMovies(null);
         JList<String> movieList = new JList<>(movieListModel);
         panel.add(new JScrollPane(movieList), BorderLayout.CENTER);
         
@@ -142,9 +145,21 @@ public class BookTickets extends JFrame {
         // Button panel - 2 rows, 3 columns
         JPanel btnPanel = new JPanel(new GridLayout(2, 3, 5, 5));
         
+        bFilter.addActionListener(e -> {
+            String selectedGenre = (String) genreCombo.getSelectedItem();
+            if (selectedGenre == null || selectedGenre.equals("All")) {
+                loadMovies(null);
+            } else {
+                loadMovies(selectedGenre);
+            }
+        });
+        
         bFetchByGenre.addActionListener(e -> {
             String selectedGenre = (String) genreCombo.getSelectedItem();
-            if (selectedGenre == null) return;
+            if (selectedGenre == null || selectedGenre.equals("All")) {
+                JOptionPane.showMessageDialog(this, "Please select a specific genre to fetch.");
+                return;
+            }
             
             try (Connection conn = DriverManager.getConnection(DATABASE_URL, USER, PASS)) {
                 conn.setAutoCommit(false);
@@ -161,7 +176,7 @@ public class BookTickets extends JFrame {
                 for (String m : movieTitles) {
                     MovieAPI.searchAndAddMovie(crud, m);
                 }
-                loadMovies();
+                loadMovies(selectedGenre);
                 JOptionPane.showMessageDialog(this, "Fetched " + movieTitles.length + " " + selectedGenre + " movies from API!");
             } else {
                 JOptionPane.showMessageDialog(this, "No movies found for genre: " + selectedGenre);
@@ -186,7 +201,7 @@ public class BookTickets extends JFrame {
             {
                 MovieAPI.searchAndAddMovie(crud, m);
             }
-            loadMovies();
+            loadMovies(null);
             JOptionPane.showMessageDialog(this, "Fetched " + popularMovies.length + " movies from API!");
         });
         
@@ -404,19 +419,30 @@ public class BookTickets extends JFrame {
     }
     
     // Loads all movies from the database into the movie list
-    private void loadMovies() {
+    private void loadMovies(String genre) {
         movieListModel.clear();  // Clear existing items first
-        String query = "SELECT movieID, title, genre FROM movie ORDER BY movieID";
+        String query;
+        if (genre == null || genre.equals("All")) {
+            query = "SELECT movieID, title, genre FROM movie ORDER BY movieID";
+        } else {
+            query = "SELECT movieID, title, genre FROM movie WHERE genre LIKE ? ORDER BY movieID";
+        }
         try (Connection conn = DriverManager.getConnection(DATABASE_URL, USER, PASS);
-            PreparedStatement ps = conn.prepareStatement(query);
-            ResultSet rs = ps.executeQuery()) {
+            PreparedStatement ps = conn.prepareStatement(query)) {
+            if (genre != null && !genre.equals("All")) {
+                ps.setString(1, "%" + genre + "%");
+            }
+            ResultSet rs = ps.executeQuery();
             // Iterate through all movies returned
             while (rs.next()) {
                 int id = rs.getInt("movieID");
                 String title = rs.getString("title");
-                String genre = rs.getString("genre");
+                String movieGenre = rs.getString("genre");
                 // Add to list in format: "ID - Title (Genre)"
-                movieListModel.addElement(id + " - " + title + " (" + genre + ")");
+                movieListModel.addElement(id + " - " + title + " (" + movieGenre + ")");
+            }
+            if (movieListModel.isEmpty()) {
+                movieListModel.addElement("No movies found. Try fetching movies first.");
             }
         } catch (SQLException e) {
             e.printStackTrace();

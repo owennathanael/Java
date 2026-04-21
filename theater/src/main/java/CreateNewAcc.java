@@ -112,9 +112,8 @@ public class CreateNewAcc extends JFrame {
         ));
         centerPanel.add(password);
         
-        centerPanel.add(new JPanel());
-        
-        buttons = new JButton[1];
+        buttons = new JButton[2];
+
         buttons[0] = new JButton("Create Account");
         buttons[0].setFont(new Font("Arial", Font.BOLD, 14));
         buttons[0].setForeground(TEXT_COLOR);
@@ -138,6 +137,17 @@ public class CreateNewAcc extends JFrame {
         
         centerPanel.add(buttons[0]);
         
+        buttons[1] = new JButton("Back to Login");
+        buttons[1].setFont(new Font("Arial", Font.BOLD, 14));
+        buttons[1].setForeground(TEXT_COLOR);
+        buttons[1].setBackground(new Color(80, 120, 80));
+        buttons[1].setFocusPainted(false);
+        buttons[1].setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(GOLD, 1),
+            BorderFactory.createEmptyBorder(10, 20, 10, 20)
+        ));
+        centerPanel.add(buttons[1]);
+
         add(centerPanel, BorderLayout.CENTER);
         
         TextFieldHandler Text_handler = new TextFieldHandler();
@@ -147,6 +157,7 @@ public class CreateNewAcc extends JFrame {
         
         ButtonHandler Button_handler = new ButtonHandler();
         buttons[0].addActionListener(Button_handler);
+        buttons[1].addActionListener(Button_handler);
         
         setSize(420, 320);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -214,6 +225,10 @@ public class CreateNewAcc extends JFrame {
                         ex.printStackTrace();
                     }
                 }
+            }
+            if(event.getSource() == buttons[1]) {
+                dispose();
+                new MainMenu();
             }
         }
     }
